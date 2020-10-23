@@ -1,0 +1,141 @@
+apply plugin: 'distribution'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+defaultTasks 'clean', 'distZip', 'distTar'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group = 'net.unicon'
+version = project.version
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://build.shibboleth.net/nexus/content/repositories/releases" }
+    maven { url "https://build.shibboleth.net/nexus/content/repositories/thirdparty" }
+}
+
+test.onlyIf { !Boolean.getBoolean('skip.tests') }
+
+configurations {
+    provided
+    compile.extendsFrom provided
+}
+configurations.compile.transitive = false
+
+dependencies {
+    compile "org.jasig.cas.client:cas-client-core:$project.casClientVersion"
+
+    provided "javax.servlet:javax.servlet-api:$project.servletVersion"
+    provided "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
+    provided "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
+    provided "commons-lang:commons-lang:$project.commonLangVersion"
+
+    testCompile "junit:junit:$project.junitVersion"
+    testCompile "org.mockito:mockito-all:$project.mockitoVersion"
+    testCompile "org.powermock:powermock-mockito-release-full:$project.powermockVersion"
+}
+
+distributions {
+    main {
+        baseName = 'shib-cas-authn3'
+        contents {
+            from { 'build/dist-tmp' }
+        }
+    }
+}
+
+task prepDist() {
+    dependsOn jar
+
+    inputs.dir 'IDP_HOME/'
+    inputs.file 'LICENSE'
+
+    outputs.dir 'build/dist-tmp/'
+
+    doLast {
+        copy {
+            from('IDP_HOME')
+            from('LICENSE')
+            into 'build/dist-tmp/'
+        }
+        copy {
+            from (configurations.compile - configurations.provided)
+            from jar
+            into 'build/dist-tmp/edit-webapp/WEB-INF/lib'
+        }
+    }
+}
+
+distTar.dependsOn prepDist
+distZip.dependsOn prepDist
+
+task prepImageFiles() {
+    dependsOn jar
+
+    inputs.dir 'src/test/docker'
+    inputs.dir 'build/libs'
+
+    outputs.dir 'build/docker'
+
+    doLast {
+        copy {
+            from "src/test/docker/"
+            into 'build/docker/'
+        }
+        copy {
+            from "build/libs/"
+            into 'build/docker/shib_idp/shibboleth-idp/webapp/WEB-INF/lib/'
+        }
+        copy {
+            from "IDP_HOME/flows/"
+            into 'build/docker/shib_idp/shibboleth-idp/flows/'
+        }
+        copy {
+            from "IDP_HOME/edit-webapp/"
+            into 'build/docker/shib_idp/shibboleth-idp/webapp/'
+        }
+    }
+}
+
+task buildImage(type: Exec) {
+    dependsOn prepImageFiles
+
+    doFirst {
+        logger.lifecycle("Building the initial images may take a long time. Have plenty of bandwidth.")
+    }
+
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'build'
+}
+
+task up(type: Exec) {
+    dependsOn buildImage
+
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'up', '-d'
+}
+
+task stop(type: Exec) {
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'kill'
+}
+
+task down(type: Exec) {
+    dependsOn stop
+
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'rm', '-f'
+}
+
+if (new File('./build/docker/').exists()) {
+    clean.dependsOn down
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = project.gradleVersion
+}
