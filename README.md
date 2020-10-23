@@ -1,10 +1,10 @@
 ## NOTE Documentation and release artifacts are being worked on. As such documenatation and/or artifacts may not match, we thank you for your patience!
 
-## A Shibboleth IdP v3.X plugin for authentication via an external CAS Server
+## A Shibboleth IdP v4.X plugin for delegating authentication to an external SSO Server using the CAS protocol
 
 
-This is a Shibboleth IdP external authentication plugin that delegates the authentication to an external 
-Central Authentication Server. The biggest advantage of using this component over the plain 
+This is a Shibboleth IdP external authentication plugin that delegates primary authentication to an external 
+Single Sign On Server using the Central Authentication Server protocol. The biggest advantage of using this component over the plain 
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
 of native CAS protocol features such as `renew` and `gateway`, plus the ability to share with CAS the 
 EntityID of the relying application.
@@ -16,32 +16,32 @@ Maintenance Status
 
 Maintenance of this project is sponsored by Unicon's [Open Source Support program](https://unicon.net/support). Professional support/integration assistance for this module is available. For more information, visit <https://unicon.net/opensource/shibboleth>.
 
-Also, please do note that the Shibboleth IdP v3 has support for the CAS protocol and Apereo CAS server v5+ also has support for the SAML2 protocol. Unless justified otherwise, a better approach long-term would be to consolidate down to one platform removing the need to deploy and configure this plugin.
+Also, please do note that the Shibboleth IdP v3x+ has support for the CAS protocol and Apereo CAS server v5+ also has support for the SAML2 protocol. Unless justified otherwise, a better approach long-term would be to consolidate down to one platform removing the need to deploy and configure this plugin.
+
 
 Build Status
 -------------------------------------------------------------
-[![Build Status](https://travis-ci.org/Unicon/shib-cas-authn3.svg?branch=master)](https://travis-ci.org/Unicon/shib-cas-authn3)
+[![Build Status](https://travis-ci.org/Unicon/shib-cas-authn.svg?branch=master)](https://travis-ci.org/Unicon/shib-cas-authn)
 
 Software Requirements
 -------------------------------------------------------------
 
-This minimum supported version of Shibboleth Identity Provider is `3.3.0`. As of version `3.3.0`, the minimum supported version of Shibboleth Identity Provider is `3.4.6` which contains a fix for *Denial of service via External authentication flows*. See [this link](https://wiki.shibboleth.net/confluence/display/IDP30/SecurityAdvisories) for more details.
+This minimum supported version of Shibboleth Identity Provider is `4.0.1`. 
 
-> A Shibboleth IdP v2.X plugin can be found at <https://github.com/Unicon/shib-cas-authn2>.
 
 Installation
 ---------------------------------------------------------------
 
 #### Overview
 
-- Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn3/releases).
+- Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn/releases).
 - Copy the no-conversation-state.jsp file to your `IDP_HOME/edit-webapp`
 - Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
 - Update the IdP's `web.xml`.
 - Update the IdP's `idp.properties` file.
 - Rebuild the war file.
 
-**NOTE:** You should **ALWAYS** refers to the `README.md` file that is [packaged with the release](https://github.com/Unicon/shib-cas-authn3/releases) for instructions.
+**NOTE:** You should **ALWAYS** refers to the `README.md` file that is [packaged with the release](https://github.com/Unicon/shib-cas-authn/releases) for instructions.
 
 
 #### Update the IdP's `web.xml`
@@ -115,8 +115,6 @@ will match as two different entries in the service registry which will allow as 
 Handling REFEDS MFA Profile
 ---------------------------------------------------------------
 
-Note: This feature is only available, starting with version `3.2.4`.
-
 The plugin has native support for [REFEDS MFA profile](https://refeds.org/profile/mfa). The requested authentication context class that is `https://refeds.org/profile/mfa`
 is passed along from the Shibboleth IdP over to this plugin and is then translated to a multifactor authentication strategy supported by and configured CAS (i.e. Duo Security). 
 The CAS server is notified of the required authentication method via a special `authn_method` parameter by default. Once a service ticket is issued and plugin begins to
@@ -156,7 +154,7 @@ You also need to ensure the `authn/External` flow is able to accept the requeste
 
 Release Notes
 -------------------------------------------------------------
-See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
+See [here](https://github.com/Unicon/shib-cas-authn/releases/).
 
 Developer Notes
 -------------------------------------------------------------
