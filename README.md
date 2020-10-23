@@ -1,9 +1,5 @@
-## NOTE Development has moved. Please navigate to <https://github.com/Unicon/shib-cas-authn> for future version and updates!
-
 ## A Shibboleth IdP v3.X plugin for authentication via an external CAS Server
 
-
-> A Shibboleth IdP v4.X plugin can be found at <https://github.com/Unicon/shib-cas-authn>
 
 This is a Shibboleth IdP external authentication plugin that delegates the authentication to an external 
 Central Authentication Server. The biggest advantage of using this component over the plain 
@@ -22,28 +18,27 @@ Also, please do note that the Shibboleth IdP v3 has support for the CAS protocol
 
 Build Status
 -------------------------------------------------------------
-[![Build Status](https://travis-ci.org/Unicon/shib-cas-authn3.svg?branch=master)](https://travis-ci.org/Unicon/shib-cas-authn3)
+[![Build Status](https://travis-ci.org/Unicon/shib-cas-authn.svg?branch=master)](https://travis-ci.org/Unicon/shib-cas-authn)
 
 Software Requirements
 -------------------------------------------------------------
 
 This minimum supported version of Shibboleth Identity Provider is `3.3.0`. As of version `3.3.0`, the minimum supported version of Shibboleth Identity Provider is `3.4.6` which contains a fix for *Denial of service via External authentication flows*. See [this link](https://wiki.shibboleth.net/confluence/display/IDP30/SecurityAdvisories) for more details.
 
-> A Shibboleth IdP v2.X plugin can be found at <https://github.com/Unicon/shib-cas-authn2>.
 
 Installation
 ---------------------------------------------------------------
 
 #### Overview
 
-- Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn3/releases).
+- Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn/releases).
 - Copy the no-conversation-state.jsp file to your `IDP_HOME/edit-webapp`
 - Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
 - Update the IdP's `web.xml`.
 - Update the IdP's `idp.properties` file.
 - Rebuild the war file.
 
-**NOTE:** You should **ALWAYS** refers to the `README.md` file that is [packaged with the release](https://github.com/Unicon/shib-cas-authn3/releases) for instructions.
+**NOTE:** You should **ALWAYS** refers to the `README.md` file that is [packaged with the release](https://github.com/Unicon/shib-cas-authn/releases) for instructions.
 
 
 #### Update the IdP's `web.xml`
@@ -158,7 +153,7 @@ You also need to ensure the `authn/External` flow is able to accept the requeste
 
 Release Notes
 -------------------------------------------------------------
-See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
+See [here](https://github.com/Unicon/shib-cas-authn/releases/).
 
 Developer Notes
 -------------------------------------------------------------
