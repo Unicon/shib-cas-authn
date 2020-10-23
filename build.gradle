@@ -41,7 +41,7 @@ dependencies {
 
 distributions {
     main {
-        baseName = 'shib-cas-authn3'
+        baseName = 'shib-cas-authn'
         contents {
             from { 'build/dist-tmp' }
         }

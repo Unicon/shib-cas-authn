@@ -16,7 +16,7 @@
         </header>
     
         <div class="content">
-          <h2><spring:message code="shibCasAuthn3.errorMessage" text="Sorry, it looks like there is a problem finding your session. This can happen if you waited too long on the login page, or if you were redirected to a different server that issued the original request. This error usually goes away if you try accessing your desired application again." /></h2>
+          <h2><spring:message code="shibCasAuthn.errorMessage" text="Sorry, it looks like there is a problem finding your session. This can happen if you waited too long on the login page, or if you were redirected to a different server that issued the original request. This error usually goes away if you try accessing your desired application again." /></h2>
         </div>
       </div>
 

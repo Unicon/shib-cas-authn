@@ -286,7 +286,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         try {
             requestDispatcher.forward(request, response);
         } catch (final Exception e) {
-            logger.error("Error rendering the empty conversation state (shib-cas-authn3) error view.");
+            logger.error("Error rendering the empty conversation state (shib-cas-authn) error view.");
             response.resetBuffer();
             response.setStatus(404);
         }
