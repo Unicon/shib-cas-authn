@@ -19,10 +19,6 @@ Maintenance of this project is sponsored by Unicon's [Open Source Support progra
 Also, please do note that the Shibboleth IdP v3x+ has support for the CAS protocol and Apereo CAS server v5+ also has support for the SAML2 protocol. Unless justified otherwise, a better approach long-term would be to consolidate down to one platform removing the need to deploy and configure this plugin.
 
 
-Build Status
--------------------------------------------------------------
-[![Build Status](https://travis-ci.org/Unicon/shib-cas-authn.svg?branch=master)](https://travis-ci.org/Unicon/shib-cas-authn)
-
 Software Requirements
 -------------------------------------------------------------
 
@@ -35,9 +31,11 @@ Installation
 #### Overview
 
 - Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn/releases).
-- Copy the no-conversation-state.jsp file to your `IDP_HOME/edit-webapp`
+- Copy the no-conversation-state.jsp file (also found inside this repo in IDP_HOME/edit-webapp) to your IdP's `IDP_HOME/edit-webapp`
 - Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
-- Update the IdP's `web.xml`.
+- Copy and Update the IdP's `web.xml`.
+- Update the IdP's `external-authn.xml` file.
+- (Optional) Update the IdP's `general-authn.xml` file.
 - Update the IdP's `idp.properties` file.
 - Rebuild the war file.
 
@@ -46,7 +44,7 @@ Installation
 
 #### Update the IdP's `web.xml`
 
-Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` (Copy from `IDP_HOME/webapp/WEB-INF/web.xml`, if necessary.)
+Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml`. If there's no existing `web.xml` file in that location, copy the original from `IDP_HOME/dist/webapp/WEB-INF/web.xml` into `IDP_HOME/edit-webapp/WEB-INF/web.xml` and edit there.
 
 Example snippet `web.xml`:
 
@@ -65,10 +63,33 @@ Example snippet `web.xml`:
 ...
 ```
 
+#### Update the IdP's external-authn.xml file
+
+In the `IDP_HOME/authn/external-authn.xml` file, ensure the context path points to `Authn/External` as shown below.
+
+```xml
+    <!-- Servlet context-relative path to wherever your implementation lives. -->
+    <bean id="shibboleth.authn.External.externalAuthnPath" class="java.lang.String"
+        c:_0="contextRelative:Authn/External" />
+```
+
+
+#### OPTIONAL Update the IdP's general-authn.xml file
+
+You may also need to ensure the `authn/External` flow is able to accept passive and forced authentication if you wish to use those features. The `authn/External` bean is modified in the `IDP_HOME/authn/general-authn.xml` file as shown below. Note that non browser flow is not possible or supported so it should be false.
+
+```xml
+<bean id="authn/External" parent="shibboleth.AuthenticationFlow"
+  p:passiveAuthenticationSupported="true"
+  p:forcedAuthenticationSupported="true"
+  p:nonBrowserSupported="false" />
+```
+
+
 #### Update the IdP's idp.properties file
 
-1. Set the `idp.authn.flows` to `External`. Or, for advance cases, add `External` to the list.
-1. Add the additional properties.
+1. Set the `idp.authn.flows` to `External` in `IDP_HOME/conf/idp.properties`. Or, for advance cases, add `External` to the list if you have others.
+1. Add new properties for the ShibCas plugin.
 
 ```properties   
 ...
@@ -104,7 +125,8 @@ shibcas.serverName = https://shibserver.example.edu
 
 From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
 
-#### CAS Service Registry
+
+#### OPTIONAL EntityId / CAS Service Passing
 By setting `shibcas.entityIdLocation=embed`, shib-cas-authn will embed the entityId in the service string so that CAS Server
 can use the entityId when evaluating a service registry entry match. Using serviceIds of something like: 
 `https://shibserver.example.edu/idp/Authn/ExtCas\?conversation=[a-z0-9]*&entityId=http://testsp.school.edu/sp`
@@ -112,7 +134,8 @@ or
 `https://shibserver.example.edu/idp/Authn/ExtCas\?conversation=[a-z0-9]*&entityId=http://test.unicon.net/sp`
 will match as two different entries in the service registry which will allow as CAS admin to enable MFA or use access strategies on an SP by SP basis. 
 
-Handling REFEDS MFA Profile
+
+OPTIONAL Handling REFEDS MFA Profile
 ---------------------------------------------------------------
 
 The plugin has native support for [REFEDS MFA profile](https://refeds.org/profile/mfa). The requested authentication context class that is `https://refeds.org/profile/mfa`
@@ -125,16 +148,17 @@ The supported multifactor authentication providers are listed below:
 
 - Duo Security  (Requesting `authn_method=mfa-duo` and expecting validation payload attribute `authnContextClass=mfa-duo`)
 
-#### Configuration
 
-In the `idp.properties` file, ensure the following settings are set:
+#### REFEDS MFA Profile Configuration
+
+In the `IDP_HOME/conf/idp.properties` file, ensure the following settings are set:
 
 ```properties
 shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityRefedsAuthnMethodTranslator
 shibcas.parameterBuilders = net.unicon.idp.authn.provider.extra.CasMultifactorRefedsToDuoSecurityAuthnMethodParameterBuilder
 ```
 
-You also need to ensure the `authn/External` flow is able to accept the requested principal in the IdP's `general-authn.xml` file, that is `https://refeds.org/profile/mfa`.
+Finally add the authn context refs in the supported principals property list to `authn/External` in `general-authn.xml` as shown below. 
 
 ```xml
 <bean id="authn/External" parent="shibboleth.AuthenticationFlow"
