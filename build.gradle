@@ -5,8 +5,8 @@ apply plugin: 'maven'
 
 defaultTasks 'clean', 'distZip', 'distTar'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 group = 'net.unicon'
 version = project.version
@@ -32,11 +32,12 @@ dependencies {
     provided "javax.servlet:javax.servlet-api:$project.servletVersion"
     provided "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
     provided "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
-    provided "commons-lang:commons-lang:$project.commonLangVersion"
+    provided "org.apache.commons:commons-lang3:$project.commonLangVersion"
 
     testCompile "junit:junit:$project.junitVersion"
-    testCompile "org.mockito:mockito-all:$project.mockitoVersion"
-    testCompile "org.powermock:powermock-mockito-release-full:$project.powermockVersion"
+    testCompile "org.mockito:mockito-core:$project.mockitoVersion"
+    testCompile "org.powermock:powermock-api-mockito2:$project.powermockVersion"
+    testCompile "org.powermock:powermock-module-junit4:$project.powermockVersion"
 }
 
 distributions {
@@ -133,9 +134,4 @@ task down(type: Exec) {
 
 if (new File('./build/docker/').exists()) {
     clean.dependsOn down
-}
-
-
-task wrapper(type: Wrapper) {
-    gradleVersion = project.gradleVersion
 }
