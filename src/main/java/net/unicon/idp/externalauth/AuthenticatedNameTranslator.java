@@ -1,12 +1,13 @@
 package net.unicon.idp.externalauth;
 
 import net.shibboleth.idp.attribute.IdPAttribute;
+import net.shibboleth.idp.attribute.IdPAttributeValue;
 import net.shibboleth.idp.attribute.StringAttributeValue;
 import net.shibboleth.idp.authn.ExternalAuthentication;
 import net.shibboleth.idp.authn.principal.IdPAttributePrincipal;
 import net.shibboleth.idp.authn.principal.UsernamePrincipal;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.slf4j.Logger;
@@ -81,7 +82,7 @@ public class AuthenticatedNameTranslator implements CasToShibTranslator {
         for (final Map.Entry<String, Object> entry : casAttributes.entrySet()) {
             final IdPAttribute attr = new IdPAttribute(entry.getKey());
 
-            final List<StringAttributeValue> attributeValues = new ArrayList<>();
+            final List<IdPAttributeValue> attributeValues = new ArrayList<>();
             if (entry.getValue() instanceof Collection) {
                 for (final Object value : (Collection) entry.getValue()) {
                     attributeValues.add(new StringAttributeValue(value.toString()));

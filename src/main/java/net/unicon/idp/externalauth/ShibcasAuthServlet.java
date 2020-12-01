@@ -5,7 +5,7 @@ import net.shibboleth.idp.authn.ExternalAuthentication;
 import net.shibboleth.idp.authn.ExternalAuthenticationException;
 import net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder;
 import net.unicon.idp.authn.provider.extra.IParameterBuilder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.AbstractCasProtocolUrlBasedTicketValidator;
 import org.jasig.cas.client.validation.Assertion;
@@ -217,8 +217,8 @@ public class ShibcasAuthServlet extends HttpServlet {
         for (final String parameterBuilder : StringUtils.split(builders, ";")) {
             try {
                 logger.debug("Loading parameter builder class {}", parameterBuilder);
-                final Class clazz = Class.forName(parameterBuilder);
-                final IParameterBuilder builder = IParameterBuilder.class.cast(clazz.newInstance());
+                final Class<?> clazz = Class.forName(parameterBuilder);
+                final IParameterBuilder builder = IParameterBuilder.class.cast(clazz.getDeclaredConstructor().newInstance());
                 if (builder instanceof ApplicationContextAware) {
                     ((ApplicationContextAware) builder).setApplicationContext(applicationContext);
                 }
@@ -242,7 +242,7 @@ public class ShibcasAuthServlet extends HttpServlet {
             try {
                 logger.debug("Loading translator class {}", classname);
                 final Class<?> c = Class.forName(classname);
-                final CasToShibTranslator e = (CasToShibTranslator) c.newInstance();
+                final CasToShibTranslator e = (CasToShibTranslator) c.getDeclaredConstructor().newInstance();
                 if (e instanceof EnvironmentAware) {
                     ((EnvironmentAware) e).setEnvironment(environment);
                 }

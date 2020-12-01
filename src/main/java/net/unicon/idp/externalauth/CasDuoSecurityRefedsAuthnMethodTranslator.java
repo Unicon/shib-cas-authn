@@ -104,16 +104,13 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
                     return new PrincipalEvalPredicate() {
 
                         @Override
-                        public Principal getMatchingPrincipal() {
-                            return principal;
+                        public boolean test(PrincipalSupportingComponent principalSupportingComponent) {
+                            return principalSupportingComponent != null && principalSupportingComponent.getSupportedPrincipals(principal.getClass()).contains(principal);
                         }
 
                         @Override
-                        public boolean apply(@Nullable final PrincipalSupportingComponent input) {
-                            final Set supported = input != null
-                                ? input.getSupportedPrincipals(principal.getClass())
-                                : new HashSet();
-                            return supported.stream().anyMatch(p -> principal.equals(p));
+                        public Principal getMatchingPrincipal() {
+                            return principal;
                         }
                     };
                 }
