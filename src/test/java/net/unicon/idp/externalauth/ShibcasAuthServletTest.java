@@ -235,7 +235,7 @@ public class ShibcasAuthServletTest {
     @Test
     public void testConstructServiceUrlEmbed() throws Exception {
         //Mock some objects.
-        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET + "&entityId=http://test.edu/sp", TICKET, "false");
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET + "&entityId=http://test.edu/sp", TICKET, "false", "http://test.edu/sp");
         final HttpServletResponse response = createMockHttpServletResponse();
 
         //Prep our object
@@ -350,6 +350,18 @@ public class ShibcasAuthServletTest {
 
         return request;
     }
+    
+
+    private HttpServletRequest createDoGetHttpServletRequest(final String queryString, final String ticket, final String gatewayAttempted, final String entityId) {
+    	final HttpServletRequest request = createMockHttpServletRequest();
+
+        BDDMockito.given(request.getQueryString()).willReturn(queryString);
+        BDDMockito.given(request.getParameter("ticket")).willReturn(ticket);
+        BDDMockito.given(request.getParameter("gatewayAttempted")).willReturn(gatewayAttempted);
+        BDDMockito.given(request.getParameter("entityId")).willReturn(entityId);
+
+        return request;
+	}
 
     private Assertion createMockAssertion() {
         final Assertion assertion = Mockito.mock(Assertion.class);
