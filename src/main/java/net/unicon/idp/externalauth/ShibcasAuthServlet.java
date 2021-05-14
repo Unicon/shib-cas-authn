@@ -274,11 +274,19 @@ public class ShibcasAuthServlet extends HttpServlet {
      * in which case we should not modify the service URL returned by CAS CommonUtils; this
      * avoids appending the entity ID twice when entityIdLocation=embed, since the ID is already
      * embedded in the string during validation.
+     * @throws TicketValidationException 
      */
-    protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response, final boolean isValidatingTicket) {
-        return isValidatingTicket
-            ? CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true)
-            : constructServiceUrl(request, response);
+    protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response, final boolean isValidatingTicket) throws TicketValidationException {
+        if(isValidatingTicket && "embed".equalsIgnoreCase(entityIdLocation)) {
+        	// we have to check that entityIdLocation has not been modified by user
+        	final String requestEntityIdLocation = request.getParameter("entityId");
+        	final String relayingPartyId = request.getAttribute(ExternalAuthentication.RELYING_PARTY_PARAM).toString();
+        	if(!requestEntityIdLocation.equals(relayingPartyId)) {
+        		throw new TicketValidationException(String.format("Validation failed. relayingPartyId attribute request %s doesn't match with entityId request parameter %s", relayingPartyId, requestEntityIdLocation));
+        	}
+        	return CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
+        }
+        return constructServiceUrl(request, response);        
     }
 
     private void loadErrorPage(final HttpServletRequest request, final HttpServletResponse response) {
