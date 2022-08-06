@@ -76,26 +76,46 @@ public class AuthenticatedNameTranslator implements CasToShibTranslator {
         return EqualsBuilder.reflectionEquals(this, that);
     }
 
-
     private Collection<IdPAttributePrincipal> produceIdpAttributePrincipal(final Map<String, Object> casAttributes) {
         final Set<IdPAttributePrincipal> principals = new HashSet<>();
         for (final Map.Entry<String, Object> entry : casAttributes.entrySet()) {
-            final IdPAttribute attr = new IdPAttribute(entry.getKey());
-
-            final List<IdPAttributeValue> attributeValues = new ArrayList<>();
-            if (entry.getValue() instanceof Collection) {
-                for (final Object value : (Collection) entry.getValue()) {
-                    attributeValues.add(new StringAttributeValue(value.toString()));
+            logger.debug("Processing CAS attribute {}", entry.getKey());
+            try {
+                final List<IdPAttributeValue> attributeValues = new ArrayList<>();
+                if (entry.getValue() instanceof Collection) {
+                    for (final Object value : (Collection) entry.getValue()) {
+                        final String attributeValue = value.toString();
+                        if (attributeValue.trim().isEmpty()) {
+                            logger.warn("Skipping attribute {} with empty value(s)", entry.getKey());
+                        } else {
+                            logger.debug("Adding value {} for attribute {}", attributeValue, entry.getKey());
+                            attributeValues.add(new StringAttributeValue(attributeValue));
+                        }
+                    }
+                } else {
+                    final String attributeValue = entry.getValue().toString();
+                    if (attributeValue.trim().isEmpty()) {
+                        logger.warn("Skipping attribute {} with empty value(s)", entry.getKey());
+                    } else {
+                        logger.debug("Adding value {} for attribute {}", attributeValue, entry.getKey());
+                        attributeValues.add(new StringAttributeValue(attributeValue));
+                    }
                 }
-            } else {
-                attributeValues.add(new StringAttributeValue(entry.getValue().toString()));
-            }
-            if (!attributeValues.isEmpty()) {
-                attr.setValues(attributeValues);
-                logger.debug("Added attribute {} with values {}", entry.getKey(), entry.getValue());
-                principals.add(new IdPAttributePrincipal(attr));
-            } else {
-                logger.warn("Skipped attribute {} since it contains no values", entry.getKey());
+                if (!attributeValues.isEmpty()) {
+                    final IdPAttribute attribute = new IdPAttribute(entry.getKey());
+                    attribute.setValues(attributeValues);
+                    logger.debug("Added attribute {} with values {}", entry.getKey(), entry.getValue());
+                    principals.add(new IdPAttributePrincipal(attribute));
+                } else {
+                    logger.warn("Skipped attribute {} since it contains no values", entry.getKey());
+                }
+            } catch (Exception e) {
+                final String message = "Unable to process attribute: " + entry.getKey() + ":" + e.getMessage();
+                if (logger.isDebugEnabled()) {
+                    logger.warn(message, e);
+                } else {
+                    logger.warn(message);
+                }
             }
         }
         return principals;
