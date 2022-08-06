@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "config:base",
+    ":preserveSemverRanges",
+    ":rebaseStalePrs",
+    ":disableRateLimiting",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(renovatebot)"
+  ],
+  "labels": [
+    "dependencies",
+    "bot"
+  ]
+}

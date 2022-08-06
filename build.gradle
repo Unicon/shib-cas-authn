@@ -1,7 +1,7 @@
 apply plugin: 'distribution'
 apply plugin: 'idea'
-apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
 
 defaultTasks 'clean', 'distZip', 'distTar'
 
@@ -24,25 +24,28 @@ configurations {
     provided
     compile.extendsFrom provided
 }
-configurations.compile.transitive = false
+configurations.implementation.transitive = false
 
 dependencies {
-    compile "org.jasig.cas.client:cas-client-core:$project.casClientVersion"
+    implementation "org.jasig.cas.client:cas-client-core:$project.casClientVersion"
 
-    provided "javax.servlet:javax.servlet-api:$project.servletVersion"
-    provided "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
-    provided "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
-    provided "org.apache.commons:commons-lang3:$project.commonLangVersion"
+    compileOnly "javax.servlet:javax.servlet-api:$project.servletVersion"
+    compileOnly "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
+    compileOnly "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
+    compileOnly "org.apache.commons:commons-lang3:$project.commonLangVersion"
 
-    testCompile "junit:junit:$project.junitVersion"
-    testCompile "org.mockito:mockito-core:$project.mockitoVersion"
-    testCompile "org.powermock:powermock-api-mockito2:$project.powermockVersion"
-    testCompile "org.powermock:powermock-module-junit4:$project.powermockVersion"
+    testImplementation "junit:junit:$project.junitVersion"
+    testImplementation "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
+    testImplementation "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
+    testImplementation "javax.servlet:javax.servlet-api:$project.servletVersion"
+    testImplementation "org.mockito:mockito-core:$project.mockitoVersion"
+    testImplementation "org.powermock:powermock-api-mockito2:$project.powermockVersion"
+    testImplementation "org.powermock:powermock-module-junit4:$project.powermockVersion"
 }
 
 distributions {
     main {
-        baseName = 'shib-cas-authn'
+        distributionBaseName = 'shib-cas-authn'
         contents {
             from { 'build/dist-tmp' }
         }
