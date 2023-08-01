@@ -26,7 +26,7 @@ public class EntityIdParameterBuilder implements IParameterBuilder {
 
         String rpId = "error-encoding-rpid";
 
-        if (encode == true) {
+        if (encode) {
             try {
                 rpId = URLEncoder.encode(relayingPartyId, "UTF-8");
             } catch (final UnsupportedEncodingException e) {

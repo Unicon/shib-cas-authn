@@ -5,8 +5,8 @@ apply plugin: 'maven-publish'
 
 defaultTasks 'clean', 'distZip', 'distTar'
 
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
+sourceCompatibility = 11
+targetCompatibility = 11
 
 group = 'net.unicon'
 version = project.version
@@ -41,6 +41,10 @@ dependencies {
     testImplementation "org.mockito:mockito-core:$project.mockitoVersion"
     testImplementation "org.powermock:powermock-api-mockito2:$project.powermockVersion"
     testImplementation "org.powermock:powermock-module-junit4:$project.powermockVersion"
+}
+
+test {
+    jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED"
 }
 
 distributions {

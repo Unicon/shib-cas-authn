@@ -53,6 +53,7 @@ public class ShibcasAuthServlet extends HttpServlet {
     private String casServerPrefix;
     private String ticketValidatorName;
     private String entityIdLocation;
+    private String casServerValidatorPrefix;
 
     private AbstractCasProtocolUrlBasedTicketValidator ticketValidator;
 
@@ -166,13 +167,13 @@ public class ShibcasAuthServlet extends HttpServlet {
 
         switch (ticketValidatorName) {
             case "cas10":
-                ticketValidator = new Cas10TicketValidator(casServerPrefix);
+                ticketValidator = new Cas10TicketValidator(casServerValidatorPrefix);
                 break;
             case "cas30":
-                ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
+                ticketValidator = new Cas30ServiceTicketValidator(casServerValidatorPrefix);
                 break;
             case "cas20":
-                ticketValidator = new Cas20ServiceTicketValidator(casServerPrefix);
+                ticketValidator = new Cas20ServiceTicketValidator(casServerValidatorPrefix);
         }
 
         if (ticketValidator == null) {
@@ -195,6 +196,7 @@ public class ShibcasAuthServlet extends HttpServlet {
      */
     private void parseProperties(final Environment environment) {
         logger.debug("reading properties from the idp.properties file");
+
         casServerPrefix = environment.getRequiredProperty("shibcas.casServerUrlPrefix");
         logger.debug("shibcas.casServerUrlPrefix: {}", casServerPrefix);
 
@@ -209,6 +211,9 @@ public class ShibcasAuthServlet extends HttpServlet {
 
         entityIdLocation = environment.getProperty("shibcas.entityIdLocation", "append");
         logger.debug("shibcas.entityIdLocation: {}", entityIdLocation);
+
+        casServerValidatorPrefix = StringUtils.defaultIfBlank(environment.getProperty("shibcas.casServerValidatorPrefix"), casServerPrefix);
+        logger.debug("shibcas.casServerValidatorPrefix: {}", casServerValidatorPrefix);
     }
 
     private void buildParameterBuilders(final ApplicationContext applicationContext) {

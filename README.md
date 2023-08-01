@@ -22,7 +22,7 @@ Also, please do note that the Shibboleth IdP v3x+ has support for the CAS protoc
 Software Requirements
 -------------------------------------------------------------
 
-This minimum supported version of Shibboleth Identity Provider is `4.1.0`. 
+This minimum supported version of Shibboleth Identity Provider is `4.3.0`. 
 See [releases](https://github.com/Unicon/shib-cas-authn/releases) to find the the appropriate version.
 
 
