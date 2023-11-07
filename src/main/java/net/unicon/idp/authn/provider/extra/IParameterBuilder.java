@@ -1,6 +1,6 @@
 package net.unicon.idp.authn.provider.extra;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * This interface defines the interface a custom parameter builder must adopt. The implementing class needs to build a single string

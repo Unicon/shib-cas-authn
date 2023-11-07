@@ -6,13 +6,14 @@ import net.shibboleth.idp.authn.ExternalAuthenticationException;
 import net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder;
 import net.unicon.idp.authn.provider.extra.IParameterBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.jasig.cas.client.util.CommonUtils;
-import org.jasig.cas.client.validation.AbstractCasProtocolUrlBasedTicketValidator;
-import org.jasig.cas.client.validation.Assertion;
-import org.jasig.cas.client.validation.Cas10TicketValidator;
-import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
-import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
-import org.jasig.cas.client.validation.TicketValidationException;
+import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.WebUtils;
+import org.apereo.cas.client.validation.AbstractCasProtocolUrlBasedTicketValidator;
+import org.apereo.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.Cas10TicketValidator;
+import org.apereo.cas.client.validation.Cas20ServiceTicketValidator;
+import org.apereo.cas.client.validation.Cas30ServiceTicketValidator;
+import org.apereo.cas.client.validation.TicketValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -21,13 +22,13 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -64,10 +65,10 @@ public class ShibcasAuthServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException {
         // TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
         try {
-            final String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
-            final String gatewayAttempted = CommonUtils.safeGetParameter(request, "gatewayAttempted");
+            final String ticket = WebUtils.safeGetParameter(request, artifactParameterName);
+            final String gatewayAttempted = WebUtils.safeGetParameter(request, "gatewayAttempted");
             final String authenticationKey = ExternalAuthentication.startExternalAuthentication(request);
-            final boolean force = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.FORCE_AUTHN_PARAM).toString());
+	    final boolean force = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.FORCE_AUTHN_PARAM).toString());
             final boolean passive = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.PASSIVE_AUTHN_PARAM).toString());
 
             if ((ticket == null || ticket.isEmpty()) && (gatewayAttempted == null || gatewayAttempted.isEmpty())) {
@@ -260,10 +261,10 @@ public class ShibcasAuthServlet extends HttpServlet {
     }
 
     /**
-     * Use the CAS CommonUtils to build the CAS Service URL.
+     * Use the CAS WebUtils to build the CAS Service URL.
      */
     protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
-        String serviceUrl = CommonUtils.constructServiceUrl(request, response, null, serverName,
+        String serviceUrl = WebUtils.constructServiceUrl(request, response, null, serverName,
             serviceParameterName, artifactParameterName, true);
 
         if ("embed".equalsIgnoreCase(entityIdLocation)) {
@@ -276,7 +277,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     /**
      * Like the above, but with a flag indicating whether we're validating a service ticket,
-     * in which case we should not modify the service URL returned by CAS CommonUtils; this
+     * in which case we should not modify the service URL returned by CAS WebUtils; this
      * avoids appending the entity ID twice when entityIdLocation=embed, since the ID is already
      * embedded in the string during validation.
      * @throws TicketValidationException 
@@ -289,7 +290,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         	if(!requestEntityIdLocation.equals(relayingPartyId)) {
         		throw new TicketValidationException(String.format("Validation failed. relayingPartyId attribute request %s doesn't match with entityId request parameter %s", relayingPartyId, requestEntityIdLocation));
         	}
-        	return CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
+                return WebUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
         }
         return constructServiceUrl(request, response);        
     }
