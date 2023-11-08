@@ -1,6 +1,6 @@
 ## NOTE Documentation and release artifacts are being worked on. As such documenatation and/or artifacts may not match, we thank you for your patience!
 
-## A Shibboleth IdP v4.X plugin for delegating authentication to an external SSO Server using the CAS protocol
+## A Shibboleth IdP v5.X plugin for delegating authentication to an external SSO Server using the CAS protocol
 
 
 This is a Shibboleth IdP external authentication plugin that delegates primary authentication to an external 
@@ -22,7 +22,7 @@ Also, please do note that the Shibboleth IdP v3x+ has support for the CAS protoc
 Software Requirements
 -------------------------------------------------------------
 
-This minimum supported version of Shibboleth Identity Provider is `4.3.0`. 
+This minimum supported version of Shibboleth Identity Provider is `5.0.0`. 
 See [releases](https://github.com/Unicon/shib-cas-authn/releases) to find the the appropriate version.
 
 
@@ -33,63 +33,39 @@ Installation
 
 - Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn/releases).
 - Copy the no-conversation-state.jsp file (also found inside this repo in IDP_HOME/edit-webapp) to your IdP's `IDP_HOME/edit-webapp`
-- Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
-- Copy and Update the IdP's `web.xml`.
-- Update the IdP's `external-authn.xml` file.
-- (Optional) Update the IdP's `general-authn.xml` file.
+- Copy two included jar files (`cas-client-core-4.x.x.jar` and `shib-cas-athenticator-5.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
+- Update the IdP's `authn.properties` file.
+- (Optional) Update the IdP's `authn.properties` file.
 - Update the IdP's `idp.properties` file.
 - Rebuild the war file.
 
 **NOTE:** You should **ALWAYS** refers to the `README.md` file that is [packaged with the release](https://github.com/Unicon/shib-cas-authn/releases) for instructions.
 
 
-#### Update the IdP's `web.xml`
+#### Update the IdP's authn.properties file
 
-Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml`. If there's no existing `web.xml` file in that location, copy the original from `IDP_HOME/dist/webapp/WEB-INF/web.xml` into `IDP_HOME/edit-webapp/WEB-INF/web.xml` and edit there.
+In the `IDP_HOME/conf/authn/authn.properties` file, ensure the context path points to `Authn/External` as shown below.
 
-Example snippet `web.xml`:
-
-```xml
-...
-    <!-- Servlet for receiving a callback from an external CAS Server and continues the IdP login flow -->
-    <servlet>
-        <servlet-name>ShibCas Auth Servlet</servlet-name>
-        <servlet-class>net.unicon.idp.externalauth.ShibcasAuthServlet</servlet-class>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ShibCas Auth Servlet</servlet-name>
-        <url-pattern>/Authn/External/*</url-pattern>
-    </servlet-mapping>
-...
 ```
-
-#### Update the IdP's external-authn.xml file
-
-In the `IDP_HOME/authn/external-authn.xml` file, ensure the context path points to `Authn/External` as shown below.
-
-```xml
-    <!-- Servlet context-relative path to wherever your implementation lives. -->
-    <bean id="shibboleth.authn.External.externalAuthnPath" class="java.lang.String"
-        c:_0="contextRelative:Authn/External" />
+   # Servlet context-relative path to wherever your implementation lives
+   idp.authn.External.externalAuthnPath = contextRelative:Authn/External
 ```
 
 
-#### OPTIONAL Update the IdP's general-authn.xml file
+#### OPTIONAL Update the IdP's authn.properties file
 
 You may also need to ensure the `authn/External` flow is able to accept passive and forced authentication if you wish to use those features. The `authn/External` bean is modified in the `IDP_HOME/authn/general-authn.xml` file as shown below. Note that non browser flow is not possible or supported so it should be false.
 
-```xml
-<bean id="authn/External" parent="shibboleth.AuthenticationFlow"
-  p:passiveAuthenticationSupported="true"
-  p:forcedAuthenticationSupported="true"
-  p:nonBrowserSupported="false" />
+```
+idp.authn.External.passiveAuthenticationSupported = true
+idp.authn.External.nonBrowserSupported = false
+idp.authn.External.forcedAuthenticationSupported = true
 ```
 
 
 #### Update the IdP's idp.properties file
 
-1. Set the `idp.authn.flows` to `External` in `IDP_HOME/conf/idp.properties`. Or, for advance cases, add `External` to the list if you have others.
+1. Set the `idp.authn.flows` to `External` in `IDP_HOME/conf/idp.properties`. Or, for advance cases, add `External` to the list or configure the MFA plug-in if you have others.
 1. Add new properties for the ShibCas plugin.
 
 ```properties   
@@ -159,22 +135,15 @@ shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityRefedsA
 shibcas.parameterBuilders = net.unicon.idp.authn.provider.extra.CasMultifactorRefedsToDuoSecurityAuthnMethodParameterBuilder
 ```
 
-Finally add the authn context refs in the supported principals property list to `authn/External` in `general-authn.xml` as shown below. 
+Finally add the desired authn context refs in the supported principals property list to `idp.authn.External` in `IDP_HOME/conf/authn/authn.properties` as shown below. 
 
-```xml
-<bean id="authn/External" parent="shibboleth.AuthenticationFlow"
-  p:passiveAuthenticationSupported="true"
-  p:forcedAuthenticationSupported="true"
-  p:nonBrowserSupported="false">
-    <property name="supportedPrincipals">
-        <list>
-            <bean parent="shibboleth.SAML2AuthnContextClassRef"
-                  c:classRef="https://refeds.org/profile/mfa" />
-              <bean parent="shibboleth.SAML2AuthnContextClassRef"
-                  c:classRef="urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport" />
-        </list>
-    </property>
-</bean>
+```
+idp.authn.External.supportedPrincipals = \
+    saml2/https://refeds.org/profile/sfa, \
+    saml2/urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport, \
+    saml2/urn:oasis:names:tc:SAML:2.0:ac:classes:Password, \
+    saml1/urn:oasis:names:tc:SAML:1.0:am:password
+
 ```
 
 Release Notes
