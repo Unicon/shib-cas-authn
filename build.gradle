@@ -5,8 +5,8 @@ apply plugin: 'maven-publish'
 
 defaultTasks 'clean', 'distZip', 'distTar'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 17
+targetCompatibility = 17
 
 group = 'net.unicon'
 version = project.version
@@ -27,9 +27,9 @@ configurations {
 configurations.implementation.transitive = false
 
 dependencies {
-    implementation "org.jasig.cas.client:cas-client-core:$project.casClientVersion"
+    implementation "org.apereo.cas.client:cas-client-core:$project.casClientVersion"
 
-    compileOnly "javax.servlet:javax.servlet-api:$project.servletVersion"
+    compileOnly "jakarta.servlet:jakarta.servlet-api:$project.servletVersion"
     compileOnly "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
     compileOnly "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
     compileOnly "org.apache.commons:commons-lang3:$project.commonLangVersion"
@@ -37,7 +37,7 @@ dependencies {
     testImplementation "junit:junit:$project.junitVersion"
     testImplementation "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
     testImplementation "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
-    testImplementation "javax.servlet:javax.servlet-api:$project.servletVersion"
+    testImplementation "jakarta.servlet:jakarta.servlet-api:$project.servletVersion"
     testImplementation "org.mockito:mockito-core:$project.mockitoVersion"
     testImplementation "org.powermock:powermock-api-mockito2:$project.powermockVersion"
     testImplementation "org.powermock:powermock-module-junit4:$project.powermockVersion"
