@@ -1,6 +1,6 @@
 ## NOTE Documentation and release artifacts are being worked on. As such documenatation and/or artifacts may not match, we thank you for your patience!
 
-## A Shibboleth IdP v4.X plugin for delegating authentication to an external SSO Server using the CAS protocol
+## A Shibboleth IdP v5.X plugin for delegating authentication to an external SSO Server using the CAS protocol
 
 
 This is a Shibboleth IdP external authentication plugin that delegates primary authentication to an external 
@@ -22,7 +22,7 @@ Also, please do note that the Shibboleth IdP v3x+ has support for the CAS protoc
 Software Requirements
 -------------------------------------------------------------
 
-This minimum supported version of Shibboleth Identity Provider is `4.3.0`. 
+This minimum supported version of Shibboleth Identity Provider is `5.1.0`. 
 See [releases](https://github.com/Unicon/shib-cas-authn/releases) to find the the appropriate version.
 
 
@@ -35,9 +35,8 @@ Installation
 - Copy the no-conversation-state.jsp file (also found inside this repo in IDP_HOME/edit-webapp) to your IdP's `IDP_HOME/edit-webapp`
 - Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
 - Copy and Update the IdP's `web.xml`.
-- Update the IdP's `external-authn.xml` file.
-- (Optional) Update the IdP's `general-authn.xml` file.
-- Update the IdP's `idp.properties` file.
+- Update the IdP's `global.xml` file.
+- Update the IdP's `authn.properties` file.
 - Rebuild the war file.
 
 **NOTE:** You should **ALWAYS** refers to the `README.md` file that is [packaged with the release](https://github.com/Unicon/shib-cas-authn/releases) for instructions.
@@ -64,9 +63,9 @@ Example snippet `web.xml`:
 ...
 ```
 
-#### Update the IdP's external-authn.xml file
+#### Update the IdP's global.xml file
 
-In the `IDP_HOME/authn/external-authn.xml` file, ensure the context path points to `Authn/External` as shown below.
+In the `IDP_HOME/conf/global.xml` file, ensure the context path points to `Authn/External` as shown below.
 
 ```xml
     <!-- Servlet context-relative path to wherever your implementation lives. -->
@@ -75,21 +74,10 @@ In the `IDP_HOME/authn/external-authn.xml` file, ensure the context path points 
 ```
 
 
-#### OPTIONAL Update the IdP's general-authn.xml file
 
-You may also need to ensure the `authn/External` flow is able to accept passive and forced authentication if you wish to use those features. The `authn/External` bean is modified in the `IDP_HOME/authn/general-authn.xml` file as shown below. Note that non browser flow is not possible or supported so it should be false.
+#### Update the IdP's authn.properties file
 
-```xml
-<bean id="authn/External" parent="shibboleth.AuthenticationFlow"
-  p:passiveAuthenticationSupported="true"
-  p:forcedAuthenticationSupported="true"
-  p:nonBrowserSupported="false" />
-```
-
-
-#### Update the IdP's idp.properties file
-
-1. Set the `idp.authn.flows` to `External` in `IDP_HOME/conf/idp.properties`. Or, for advance cases, add `External` to the list if you have others.
+1. Set the `idp.authn.flows` to `External` in `IDP_HOME/conf/authn/authn.properties`. Or, for advance cases, add `External` to the list if you have others.
 1. Add new properties for the ShibCas plugin.
 
 ```properties   
@@ -118,6 +106,13 @@ shibcas.serverName = https://shibserver.example.edu
 # Specify if the Relying Party/Service Provider entityId should be appended as a separate entityId query string parameter
 # or embedded in the "service" querystring parameter - `append` (default) or `embed`
 # shibcas.entityIdLocation = append
+...
+idp.authn.Password.passiveAuthenticationSupported = true
+idp.authn.Password.forcedAuthenticationSupported = true
+...
+idp.authn.External.nonBrowserSupported = false
+
+
 ...
 ```
 
