@@ -1,12 +1,10 @@
-## NOTE Documentation and release artifacts are being worked on. As such documenatation and/or artifacts may not match, we thank you for your patience!
-
 ## A Shibboleth IdP v5.X plugin for delegating authentication to an external SSO Server using the CAS protocol
 
 
-This is a Shibboleth IdP external authentication plugin that delegates primary authentication to an external 
-Single Sign On Server using the Central Authentication Server protocol. The biggest advantage of using this component over the plain 
-`REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
-of native CAS protocol features such as `renew` and `gateway`, plus the ability to share with CAS the 
+This is a Shibboleth IdP external authentication plugin that delegates primary authentication to an external
+Single Sign On Server using the Central Authentication Server protocol. The biggest advantage of using this component over the plain
+`REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range
+of native CAS protocol features such as `renew` and `gateway`, plus the ability to share with CAS the
 EntityID of the relying application.
 
 The plugin takes advantage of and extends the Shibboleth IdP's external authentication flow, and consists of a number of JAR artifacts that bridge the gap between Shibboleth and CAS.
@@ -14,15 +12,13 @@ The plugin takes advantage of and extends the Shibboleth IdP's external authenti
 Maintenance Status
 -------------------------------------------------------------
 
-Maintenance of this project is sponsored by Unicon's [Open Source Support program](https://unicon.net/support). Professional support/integration assistance for this module is available. For more information, visit <https://unicon.net/opensource/shibboleth>.
-
-Also, please do note that the Shibboleth IdP v3x+ has support for the CAS protocol and Apereo CAS server v5+ also has support for the SAML2 protocol. Unless justified otherwise, a better approach long-term would be to consolidate down to one platform removing the need to deploy and configure this plugin.
+Please note that Unicon will no longer be upgrading nor maintaining this plugin any longer. That decision is based on best practices concerning the modern Shibboleth and CAS Server software packages. The Shibboleth IdP and the CAS Server support the same SSO protocols, and the best strategy is to decide which of those two SSO packages best meets your needs and only keep that one, migrating all services to it. If,for whatever reason, both SSO solutions are still required, the recommended approach is to use SAML (authentication) delegation to achieve the same results that this plugin provides now.
 
 
 Software Requirements
 -------------------------------------------------------------
 
-This minimum supported version of Shibboleth Identity Provider is `5.1.0`. 
+This minimum supported version of Shibboleth Identity Provider is `5.1.2`.
 See [releases](https://github.com/Unicon/shib-cas-authn/releases) to find the the appropriate version.
 
 
@@ -63,35 +59,20 @@ Example snippet `web.xml`:
 ...
 ```
 
-#### Update the IdP's global.xml file
-
-In the `IDP_HOME/conf/global.xml` file, ensure the context path points to `Authn/External` as shown below.
-
-```xml
-    <!-- Servlet context-relative path to wherever your implementation lives. -->
-    <bean id="shibboleth.authn.External.externalAuthnPath" class="java.lang.String"
-        c:_0="contextRelative:Authn/External" />
-```
-
-
-
 #### Update the IdP's authn.properties file
 
 1. Set the `idp.authn.flows` to `External` in `IDP_HOME/conf/authn/authn.properties`. Or, for advance cases, add `External` to the list if you have others.
 1. Add new properties for the ShibCas plugin.
 
-```properties   
+```properties
 ...
-# Regular expression matching login flows to enable, e.g. IPAddress|Password
-#idp.authn.flows = Password
 idp.authn.flows = External
 
-# CAS Client properties (usage loosely matches that of the Java CAS Client)
-## CAS Server Properties
+dp.authn.External.externalAuthnPath = contextRelative:Authn/External
+
 shibcas.casServerUrlPrefix = https://cassserver.example.edu/cas
 shibcas.casServerLoginUrl = ${shibcas.casServerUrlPrefix}/login
 
-## Shibboleth Server Properties
 shibcas.serverName = https://shibserver.example.edu
 
 # By default you always get the AuthenticatedNameTranslator, add additional code to cover your custom needs.
@@ -106,16 +87,14 @@ shibcas.serverName = https://shibserver.example.edu
 # Specify if the Relying Party/Service Provider entityId should be appended as a separate entityId query string parameter
 # or embedded in the "service" querystring parameter - `append` (default) or `embed`
 # shibcas.entityIdLocation = append
-...
+
 idp.authn.Password.passiveAuthenticationSupported = true
 idp.authn.Password.forcedAuthenticationSupported = true
-...
 idp.authn.External.nonBrowserSupported = false
 
 
 ...
 ```
-
 
 #### Rebuild the war file
 
@@ -124,18 +103,18 @@ From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild th
 
 #### OPTIONAL EntityId / CAS Service Passing
 By setting `shibcas.entityIdLocation=embed`, shib-cas-authn will embed the entityId in the service string so that CAS Server
-can use the entityId when evaluating a service registry entry match. Using serviceIds of something like: 
+can use the entityId when evaluating a service registry entry match. Using serviceIds of something like:
 `https://shibserver.example.edu/idp/Authn/ExtCas\?conversation=[a-z0-9]*&entityId=http://testsp.school.edu/sp`
 or
 `https://shibserver.example.edu/idp/Authn/ExtCas\?conversation=[a-z0-9]*&entityId=http://test.unicon.net/sp`
-will match as two different entries in the service registry which will allow as CAS admin to enable MFA or use access strategies on an SP by SP basis. 
+will match as two different entries in the service registry which will allow as CAS admin to enable MFA or use access strategies on an SP by SP basis.
 
 
 OPTIONAL Handling REFEDS MFA Profile
 ---------------------------------------------------------------
 
 The plugin has native support for [REFEDS MFA profile](https://refeds.org/profile/mfa). The requested authentication context class that is `https://refeds.org/profile/mfa`
-is passed along from the Shibboleth IdP over to this plugin and is then translated to a multifactor authentication strategy supported by and configured CAS (i.e. Duo Security). 
+is passed along from the Shibboleth IdP over to this plugin and is then translated to a multifactor authentication strategy supported by and configured CAS (i.e. Duo Security).
 The CAS server is notified of the required authentication method via a special `authn_method` parameter by default. Once a service ticket is issued and plugin begins to
 validate the service ticket, it will attempt to ensure that the CAS-produced validation payload contains and can successfully assert the required/requested
 authentication context class.
@@ -154,22 +133,12 @@ shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityRefedsA
 shibcas.parameterBuilders = net.unicon.idp.authn.provider.extra.CasMultifactorRefedsToDuoSecurityAuthnMethodParameterBuilder
 ```
 
-Finally add the authn context refs in the supported principals property list to `authn/External` in `general-authn.xml` as shown below. 
+Finally add the authn context refs in the supported principals property list to in `IDP_HOME/conf/authn/authn.properties` as shown below.
 
-```xml
-<bean id="authn/External" parent="shibboleth.AuthenticationFlow"
-  p:passiveAuthenticationSupported="true"
-  p:forcedAuthenticationSupported="true"
-  p:nonBrowserSupported="false">
-    <property name="supportedPrincipals">
-        <list>
-            <bean parent="shibboleth.SAML2AuthnContextClassRef"
-                  c:classRef="https://refeds.org/profile/mfa" />
-              <bean parent="shibboleth.SAML2AuthnContextClassRef"
-                  c:classRef="urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport" />
-        </list>
-    </property>
-</bean>
+```properties
+idp.authn.External.supportedPrincipals = \
+    saml2/urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport, \
+    saml2/https://refeds.org/profile/mfa
 ```
 
 Release Notes
@@ -180,11 +149,11 @@ Developer Notes
 -------------------------------------------------------------
 The project distributables can be built using `./gradlew clean build`. The artifacts will be in `build/distributions`.
 
-This project includes a Docker environment to assist with development/testing. 
+This project includes a Docker environment to assist with development/testing.
 
 To build and execute: `./gradlew clean; ./gradlew up`
 Then browse to: `https://idptestbed/idp/profile/SAML2/Unsolicited/SSO?providerId=https://sp.idptestbed/shibboleth`
 
-> You'll need a `hosts` file entry that points `idptestbed` to your Docker server's IP address. 
+> You'll need a `hosts` file entry that points `idptestbed` to your Docker server's IP address.
 
 The IdP only has a session of 1 minute (to test expired session/conversation key issues), so login into CAS Server quickly.
