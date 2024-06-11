@@ -1,9 +1,9 @@
 package net.unicon.idp.externalauth;
 
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.Assertion;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * This interface defines the public interface for a class that will translate the information from CAS to Shib. The translator
