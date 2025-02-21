@@ -31,7 +31,6 @@ Installation
 - Copy the no-conversation-state.jsp file (also found inside this repo in IDP_HOME/edit-webapp) to your IdP's `IDP_HOME/edit-webapp`
 - Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
 - Copy and Update the IdP's `web.xml`.
-- Update the IdP's `global.xml` file.
 - Update the IdP's `authn.properties` file.
 - Rebuild the war file.
 
